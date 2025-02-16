@@ -9,9 +9,8 @@ print(f"Usando dispositivo: {device}")
 class OpiniaoCNN(nn.Module):
     def __init__(self):
         super(OpiniaoCNN, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels=100, out_channels=128, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv1d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(in_channels=64, out_channels=32, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool1d(kernel_size=2)
         self.dropout = nn.Dropout(0.5)
@@ -20,12 +19,12 @@ class OpiniaoCNN(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        x = x.permute(0, 2, 1)
+        if x.dim() == 2:  # Se os dados tiverem 2 dimensões (batch_size, sequence_length)
+            x = x.unsqueeze(1)  # Adiciona a dimensão de canais
+        x = x.permute(0, 2, 1)  # Permuta para (batch_size, channels, sequence_length)
         x = self.relu(self.conv1(x))
         x = self.pool(x)
         x = self.relu(self.conv2(x))
-        x = self.pool(x)
-        x = self.relu(self.conv3(x))
         x = self.pool(x)
         x = x.view(x.size(0), -1)
         x = self.dropout(self.fc1(x))
