@@ -109,8 +109,7 @@ def evaluate(model, dev_loader, criterion, device):
 
     return dev_loss, dev_accuracy, dev_precision, dev_recall, dev_f1
 
-# Função de treinamento e validação
-def train_and_validate(train_loader, dev_loader, epochs=10, lr=0.001):
+def train_and_validate(train_loader, dev_loader, epochs=10, lr=0.001, patience=3):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Usando dispositivo: {device}")
 
@@ -121,6 +120,9 @@ def train_and_validate(train_loader, dev_loader, epochs=10, lr=0.001):
 
     logger = Logger()
     tensorboard_logger = TensorBoardLogger()
+
+    best_val_loss = float('inf')  # Melhor loss de validação registrada
+    patience_counter = 0  # Contador de épocas sem melhora
 
     for epoch in range(epochs):
         start_time = time.time()
@@ -144,6 +146,21 @@ def train_and_validate(train_loader, dev_loader, epochs=10, lr=0.001):
                                        train_precision, train_recall, train_f1,
                                        dev_precision, dev_recall, dev_f1)
 
+        # **Early Stopping**
+        if dev_loss < best_val_loss:
+            best_val_loss = dev_loss
+            patience_counter = 0
+            best_model = model.state_dict()  # Salva o melhor modelo
+        else:
+            patience_counter += 1
+            print(f"🔸 Sem melhora na validação. ({patience_counter}/{patience})")
+
+        if patience_counter >= patience:
+            print("⏹️ Early Stopping ativado! Parando treinamento.")
+            break
+
+    # Retorna o melhor modelo encontrado
+    model.load_state_dict(best_model)
     tensorboard_logger.close()
 
     return model
@@ -166,13 +183,13 @@ X_test, y_test, _ = tokenize_texts(c, vectorizer)
 
 # Criando Datasets e DataLoaders
 train_dataset = TextDataset(X_train, y_train)
-train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=256 , shuffle=True)
 
 dev_dataset = TextDataset(X_dev, y_dev)
-dev_loader = DataLoader(dev_dataset, batch_size=128, shuffle=False)
+dev_loader = DataLoader(dev_dataset, batch_size=256 , shuffle=False)
 
 test_dataset = TextDataset(X_test,y_test)
-test_loader = DataLoader(test_dataset,batch_size=128, shuffle=False)
+test_loader = DataLoader(test_dataset,batch_size=256 , shuffle=False)
 
 
 trained_model = train_and_validate(train_loader, test_loader, epochs=5, lr=0.001)
