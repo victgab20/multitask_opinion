@@ -166,10 +166,13 @@ X_test, y_test, _ = tokenize_texts(c, vectorizer)
 
 # Criando Datasets e DataLoaders
 train_dataset = TextDataset(X_train, y_train)
-train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
 
 dev_dataset = TextDataset(X_dev, y_dev)
-dev_loader = DataLoader(dev_dataset, batch_size=64, shuffle=False)
+dev_loader = DataLoader(dev_dataset, batch_size=128, shuffle=False)
 
-# Treinando e validando o modelo
-trained_model = train_and_validate(train_loader, dev_loader, epochs=10, lr=0.001)
+test_dataset = TextDataset(X_test,y_test)
+test_loader = DataLoader(test_dataset,batch_size=128, shuffle=False)
+
+
+trained_model = train_and_validate(train_loader, test_loader, epochs=20, lr=0.001)
