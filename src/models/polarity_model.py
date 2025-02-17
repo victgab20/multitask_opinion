@@ -12,10 +12,12 @@ class PolarityClassifier(nn.Module):
         self.relu = nn.LeakyReLU(negative_slope=0.01)
         self.fc2 = nn.Linear(256, 128)
         self.bn1 = nn.BatchNorm1d(128)
+        self.dropout1 = nn.Dropout(0.3)  # Dropout extra
         self.fc3 = nn.Linear(128, 64)
         self.bn2 = nn.BatchNorm1d(64)
+        self.dropout2 = nn.Dropout(0.3)  # Outro Dropout
         self.fc4 = nn.Linear(64, 32) 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout3 = nn.Dropout(0.5)  # Dropout já existente
         self.fc5 = nn.Linear(32, 1)
         self.sigmoid = nn.Sigmoid()
 
@@ -24,11 +26,13 @@ class PolarityClassifier(nn.Module):
         x = self.relu(x)
         x = self.fc2(x)
         x = self.bn1(x)
+        x = self.dropout1(x)  # Dropout extra
         x = self.relu(x)
         x = self.fc3(x)
         x = self.bn2(x)
+        x = self.dropout2(x)  # Outro Dropout
         x = self.relu(x)
         x = self.fc4(x)
-        x = self.dropout(x)
+        x = self.dropout3(x)  # Dropout já existente
         x = self.fc5(x)
         return self.sigmoid(x)

@@ -175,4 +175,4 @@ test_dataset = TextDataset(X_test,y_test)
 test_loader = DataLoader(test_dataset,batch_size=128, shuffle=False)
 
 
-trained_model = train_and_validate(train_loader, test_loader, epochs=20, lr=0.001)
+trained_model = train_and_validate(train_loader, test_loader, epochs=5, lr=0.001)
